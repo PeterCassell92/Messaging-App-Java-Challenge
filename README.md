@@ -1,0 +1,1 @@
+A Basic Messaging app using a java console ui
