@@ -1,4 +1,7 @@
-package com.messagingchallenge;
+package com.services;
+
+import com.models.Contact;
+import com.models.ConversationPreview;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.optionbehaviour;
+package com.optionmenu;
 
 public interface IOption {
     String getDisplayString();

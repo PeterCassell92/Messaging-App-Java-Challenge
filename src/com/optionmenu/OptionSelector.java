@@ -1,6 +1,4 @@
-package com.optionbehaviour;
-import com.optionbehaviour.ActionOption;
-import com.optionbehaviour.IOption;
+package com.optionmenu;
 
 import java.util.Scanner;
 

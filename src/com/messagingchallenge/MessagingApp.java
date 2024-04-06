@@ -1,9 +1,13 @@
 package com.messagingchallenge;
 
-import com.optionbehaviour.ActionOption;
-import com.optionbehaviour.OptionSelector;
+import com.models.Contact;
+import com.models.ConversationPreview;
+import com.models.Message;
+import com.optionmenu.ActionOption;
+import com.optionmenu.OptionSelector;
+import com.services.ContactService;
+import com.services.MessageService;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
@@ -104,8 +108,6 @@ public class MessagingApp {
     public void chooseFromManageContactsMenu(){
         System.out.println("Manage Contacts - Choose an Option:");
 
-
-
         ActionOption[] menuListOptions = {
                 new ActionOption("Show All Contacts", () -> {
                     //TODO - fill functionality
@@ -116,6 +118,8 @@ public class MessagingApp {
                     System.out.println("Add New Contact");
                     Scanner input = new Scanner(System.in);
                     String contactName = input.next();
+                    //TODO: add phone number scanner.
+                    //TODO: start to think about validations
                     this.contactService.addNewContact(contactName, "0739289290");
 
                 }),
@@ -125,9 +129,7 @@ public class MessagingApp {
                 new ActionOption("Delete a contact", () -> {
                     //TODO
                 }),
-                new ActionOption("Quit", () -> {
-                    this.previousStage();
-                })
+                new ActionOption("Quit", this::previousStage)
         };
 
         //Set the main menu list to the option selector
@@ -197,8 +199,8 @@ public class MessagingApp {
     public void displayFormattedConversation(Contact contact){
         List<Message> messages = this.getMessageService().getMessagesByContactId(contact.getContact_id());
 
-        //for this simple app we use contact id = 1 for this user
-        int userContactId = 1;
+        //for this simple app we use contact id = 0 for this user
+        int userContactId = 0;
 
         // ANSI escape codes for color formatting
         final String ANSI_GREEN = "\u001B[32m";  // Green for "Me"
@@ -257,17 +259,15 @@ public class MessagingApp {
                 this.chooseFromManageContactsMenu();
                 break;
             case "Conversations":
-                //TODO - show all conversations, make selectable by user name, order by most recent
                 this.chooseFromConversationsMenu();
                 break;
             case "ConversationView":
-                //TODO: show conversation view and show a menu for options
                 this.displayFormattedConversation(this.getCurrentConversationContact());
                 this.chooseFromConversationViewMenu();
                 break;
             default:
                 System.out.println("Invalid stage");
-                previousStage(); // Fallback or error handling
+                previousStage();
         }
     }
 }

@@ -1,4 +1,7 @@
-package com.messagingchallenge;
+package com.models;
+
+import com.models.Contact;
+import com.models.Message;
 
 public class ConversationPreview {
     private Contact contact;

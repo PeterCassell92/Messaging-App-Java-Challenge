@@ -1,4 +1,4 @@
-package com.messagingchallenge;
+package com.models;
 
 import java.time.LocalDateTime;
 

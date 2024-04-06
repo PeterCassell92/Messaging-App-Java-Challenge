@@ -1,4 +1,4 @@
-package com.optionbehaviour;
+package com.optionmenu;
 
 public class ActionOption implements IOption {
     final private String description;

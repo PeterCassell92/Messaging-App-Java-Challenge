@@ -1,4 +1,6 @@
-package com.messagingchallenge;
+package com.services;
+
+import com.models.Message;
 
 import java.util.List;
 

@@ -1,4 +1,7 @@
-package com.messagingchallenge;
+package com.services;
+
+import com.models.Contact;
+import com.models.Message;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,7 +46,7 @@ public class DatabaseService {
         messages = new ArrayList<>();
 
         // Populate initial data for contacts
-        //If this were a persistant database then we would be loading this in from the db at this point.
+        //If this were a persistent database then we would be loading this in from the db at this point.
         Contact me = this.addContact("Me", "07322422398");
         Contact robert = this.addContact("Robert", "07820209181");
         Contact jennifer = this.addContact("Jennifer", "07190198711");
@@ -58,6 +61,27 @@ public class DatabaseService {
         this.addMessage(me.getContact_id(), robert.getContact_id(), currentTime.minusHours(2), "That's great to hear!");
         this.addMessage(robert.getContact_id(), me.getContact_id(), currentTime.minusHours(1), "How about you?");
         this.addMessage(me.getContact_id(), robert.getContact_id(), currentTime.minusHours(1).plusMinutes(15), "I'm doing fine too, thanks for asking.");
+
+        // Conversation with Jennifer
+        this.addMessage(me.getContact_id(), jennifer.getContact_id(), currentTime.minusDays(2).minusHours(3), "Hi Jennifer, how have you been?");
+        this.addMessage(jennifer.getContact_id(), me.getContact_id(), currentTime.minusDays(2).minusHours(2), "Hey Me! I'm doing good, thanks. How about you?");
+        this.addMessage(me.getContact_id(), jennifer.getContact_id(), currentTime.minusDays(2).minusHours(1), "I'm doing alright. Just busy with work. How was your weekend?");
+        this.addMessage(jennifer.getContact_id(), me.getContact_id(), currentTime.minusDays(1).minusHours(23), "My weekend was great! I went hiking with friends. What about you?");
+        this.addMessage(me.getContact_id(), jennifer.getContact_id(), currentTime.minusDays(1).minusHours(22), "That sounds fun! I wish I could've joined. Maybe next time.");
+
+        // Conversation with Sinead
+        this.addMessage(me.getContact_id(), sinead.getContact_id(), currentTime.minusDays(5).minusHours(2), "Hey Sinead, how's it going?");
+        this.addMessage(sinead.getContact_id(), me.getContact_id(), currentTime.minusDays(5).minusHours(1), "Hi Me! I'm doing well, thanks. What about you?");
+        this.addMessage(me.getContact_id(), sinead.getContact_id(), currentTime.minusDays(4).minusHours(23), "I'm doing okay. Just dealing with some work stress. How was your day?");
+        this.addMessage(sinead.getContact_id(), me.getContact_id(), currentTime.minusDays(3).minusHours(23), "My day was busy as usual, but nothing too exciting. How's work going?");
+        this.addMessage(me.getContact_id(), sinead.getContact_id(), currentTime.minusDays(3).minusHours(22), "Work's been hectic, but I'm managing. Looking forward to the weekend!");
+
+        // Conversation with Max
+        this.addMessage(me.getContact_id(), max.getContact_id(), currentTime.minusDays(10).minusHours(3), "Hey Max, how have you been?");
+        this.addMessage(max.getContact_id(), me.getContact_id(), currentTime.minusDays(10).minusHours(2), "Hi Me! I've been good, thanks. How about you?");
+        this.addMessage(me.getContact_id(), max.getContact_id(), currentTime.minusDays(9).minusHours(23), "I'm doing alright. Just trying to stay productive. How's your project coming along?");
+        this.addMessage(max.getContact_id(), me.getContact_id(), currentTime.minusDays(9).minusHours(22), "My project is going well. Making steady progress. We should catch up sometime!");
+
     }
 
     public Contact addContact(String name, String phoneNumber){
@@ -73,9 +97,18 @@ public class DatabaseService {
     }
 
 
+    /**
+     * Get all contacts
+     * @return List<Contact> a list of all contacts excluding "me"
+     */
     public List<Contact> getContactsSortedByName() {
         List<Contact> sortedContacts = new ArrayList<>(contacts);
         Collections.sort(sortedContacts, Comparator.comparing(Contact::getName));
+
+        // Remove the entry where contact_id == 1
+        sortedContacts.removeIf(contact -> contact.getContact_id() == 0);
+
+
         return sortedContacts;
     }
 

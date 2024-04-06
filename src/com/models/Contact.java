@@ -1,4 +1,4 @@
-package com.messagingchallenge;
+package com.models;
 
 public class Contact {
     private String name;
