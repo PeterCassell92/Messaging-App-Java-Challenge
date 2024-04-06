@@ -102,6 +102,7 @@ public class MessagingApp {
 
         ActionOption[] actionOptions = contacts.stream()
                 .map( contact -> new ActionOption(contact.getName(), () -> {
+                    System.out.println("Deleted Contact: " + contact.getName());
                     this.contactService.deleteContact(contact);
                     this.previousStage();
                 } ))
@@ -140,7 +141,6 @@ public class MessagingApp {
                         this.nextStage("ConversationView");
                     } else {
                         System.out.println("No contact found with name = " + name);
-                        //no action
                     }
                 }),
                 new ActionOption("Delete a contact", () -> {
@@ -159,13 +159,14 @@ public class MessagingApp {
 
         ActionOption[] menuListOptions = {
                 new ActionOption("Manage Contacts", () -> {
-                    //TODO - fill functionality
                     System.out.println("Manage Contacts");
                     this.nextStage("ManageContacts");
                 }),
                 new ActionOption("Messages", () -> {
-                    //TODO - fill functionality
                     System.out.println("Go to Messages");
+                    //Using a Conversations stage rather than going to all messages due to UX considerations.
+                    //This is a minimal application however UX is still important for this basic functionality.
+                    //I would consider a screen with all messages, unsorted to be essentially unusable.
                     this.nextStage("Conversations");
                 }),
                 new ActionOption("Quit", () -> {
