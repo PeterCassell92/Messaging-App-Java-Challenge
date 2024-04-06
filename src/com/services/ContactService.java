@@ -15,6 +15,11 @@ public class ContactService {
         this.DBService.addContact(name, phoneNumber);
     }
 
+    public void deleteContact(Contact contact){
+        this.DBService.deleteContact(contact.getContact_id());
+        this.DBService.deleteMessagesWithContactId(contact.getContact_id());
+    }
+
     public ContactService() {
         this.DBService = DatabaseService.getInstance(databaseName);
     }
@@ -30,5 +35,17 @@ public class ContactService {
 
     public List<Contact> getAllContacts(){
         return this.DBService.getContactsSortedByName();
+    }
+
+    public Contact searchForContactByName(String name){
+        List<Contact> contacts = this.DBService.getContactsSortedByName();
+
+        for (Contact contact : contacts) {
+            if (contact.getName().equals(name)) {
+                return contact; // Found the contact, return it
+            }
+        }
+
+        return null; // Contact not found
     }
 }

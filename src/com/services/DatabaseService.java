@@ -96,6 +96,15 @@ public class DatabaseService {
         return message;
     }
 
+    public void deleteContact(int contactId) {
+        // Remove the contact with the specified contactId
+        contacts.removeIf(contact -> contact.getContact_id() == contactId);
+    }
+
+    public void deleteMessagesWithContactId(int contactId) {
+        // Remove all messages associated with the specified contactId
+        messages.removeIf(message -> message.getSenderContactId() == contactId || message.getReceiverContactId() == contactId);
+    }
 
     /**
      * Get all contacts

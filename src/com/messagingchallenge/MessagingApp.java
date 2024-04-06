@@ -8,6 +8,7 @@ import com.optionmenu.OptionSelector;
 import com.services.ContactService;
 import com.services.MessageService;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Stack;
@@ -67,12 +68,6 @@ public class MessagingApp {
         return contactService;
     }
 
-    public MessageService getMessageService() {
-        return messageService;
-    }
-
-
-
     public void nextStage(String nextStage){
         stageStack.push(nextStage);
     }
@@ -86,12 +81,9 @@ public class MessagingApp {
             stageStack.push("Main"); // Example to revert back to Main
         }
     }
-
     public String getCurrentStage() {
         return stageStack.peek();
     }
-
-
 
     public ActionOption[] getConversationsMenuOptions(){
         List<ConversationPreview> conversations =  this.contactService.getConversations();
@@ -105,31 +97,56 @@ public class MessagingApp {
         return actionOptions;
     }
 
+    public ActionOption[] getDeleteContactMenuOptions(){
+        List<Contact> contacts =  this.contactService.getAllContacts();
+
+        ActionOption[] actionOptions = contacts.stream()
+                .map( contact -> new ActionOption(contact.getName(), () -> {
+                    this.contactService.deleteContact(contact);
+                    this.previousStage();
+                } ))
+                .toArray(ActionOption[]::new);
+        return actionOptions;
+    }
+
     public void chooseFromManageContactsMenu(){
         System.out.println("Manage Contacts - Choose an Option:");
 
         ActionOption[] menuListOptions = {
                 new ActionOption("Show All Contacts", () -> {
-                    //TODO - fill functionality
-
-                    System.out.println("Show All Contacts");
+                    this.nextStage("Conversations");
                 }),
                 new ActionOption("Add New Contact", () -> {
                     System.out.println("Add New Contact");
                     Scanner input = new Scanner(System.in);
-                    String contactName = input.next();
-                    //TODO: add phone number scanner.
-                    //TODO: start to think about validations
-                    this.contactService.addNewContact(contactName, "0739289290");
 
+                    System.out.println("Enter Name");
+                    String contactName = input.next();
+                    System.out.println("Enter Phone Number");
+                    String phoneNumber = input.next();
+                    //TODO: start to think about validations
+                    this.contactService.addNewContact(contactName, phoneNumber);
                 }),
                 new ActionOption("Search for a contact", () -> {
-                    //TODO
+                    System.out.println("Enter string to perform name search");
+
+                    Scanner input = new Scanner(System.in);
+                    System.out.println("Enter Name");
+                    String name = input.next();
+                    Contact contact = this.contactService.searchForContactByName(name);
+                    if(contact != null){
+                        System.out.println("Showing conversations with " + contact.getName());
+                        this.setCurrentConversationContact(contact);
+                        this.nextStage("ConversationView");
+                    } else {
+                        System.out.println("No contact found with name = " + name);
+                        //no action
+                    }
                 }),
                 new ActionOption("Delete a contact", () -> {
-                    //TODO
+                    this.nextStage("DeleteContacts");
                 }),
-                new ActionOption("Quit", this::previousStage)
+                new ActionOption("Back", this::previousStage)
         };
 
         //Set the main menu list to the option selector
@@ -161,6 +178,24 @@ public class MessagingApp {
         this.optionSelector.promptSelectAndRunSelectedAction();
     }
 
+    public void chooseFromDeleteContactsMenu(){
+        System.out.println("Choose a Contact:");
+
+        ActionOption[] deleteContactMenuOptions = this.getDeleteContactMenuOptions();
+
+        ActionOption[] allListOptions = new ActionOption[deleteContactMenuOptions.length + 1];
+
+        System.arraycopy(deleteContactMenuOptions, 0, allListOptions, 0, deleteContactMenuOptions.length);
+
+        // Add the "Back" option to allListOptions
+        allListOptions[deleteContactMenuOptions.length] = new ActionOption("Back", this::previousStage);
+
+        //Set the actions list to the option selector
+        this.optionSelector.setOptions(allListOptions);
+        this.optionSelector.promptSelectAndRunSelectedAction();
+    }
+
+
     public void chooseFromConversationsMenu(){
         System.out.println("Choose a Contact:");
 
@@ -183,8 +218,14 @@ public class MessagingApp {
                 new ActionOption("Compose Message", () -> {
                     //TODO - fill functionality for sending message
                     //new scanner
-                    //use messageServiceAPI
-                    //messageService uses DBservice
+                    Scanner input = new Scanner(System.in);
+                    String messageContent = input.nextLine();
+                    Message newMessage = this.messageService.sendMessage(this.currentConversationContact.getContact_id(), messageContent);
+
+                    if(newMessage != null){
+                        System.out.println("Message sent");
+                        System.out.println(newMessage.getContent());
+                    }
                     //UI is updated with the new message in the chat
                     this.chooseFromConversationViewMenu();
                 }),
@@ -197,7 +238,7 @@ public class MessagingApp {
     }
 
     public void displayFormattedConversation(Contact contact){
-        List<Message> messages = this.getMessageService().getMessagesByContactId(contact.getContact_id());
+        List<Message> messages = this.messageService.getMessagesByContactId(contact.getContact_id());
 
         //for this simple app we use contact id = 0 for this user
         int userContactId = 0;
@@ -221,17 +262,20 @@ public class MessagingApp {
             // Pad the name string with spaces to a fixed width
             formattedName = String.format("%-" + (maxNameLength - 1) + "s", formattedName);
 
+            // Define a DateTimeFormatter with the desired format
+            DateTimeFormatter dtformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
             String formattedMessage;
             if (message.getSenderContactId() == userContactId) {
                 formattedMessage = String.format("[%s] %s: %s%s%s",
-                        message.getSent(),
+                        message.getSent().format(dtformatter),
                         formattedName,
                         ANSI_GREEN,
                         message.getContent(),
                         ANSI_RESET);
             } else {
                 formattedMessage = String.format("[%s] %s%s : %s%s",
-                        message.getSent(),
+                        message.getSent().format(dtformatter),
                         formattedName,
                         ANSI_WHITE,
                         message.getContent(),
@@ -264,6 +308,9 @@ public class MessagingApp {
             case "ConversationView":
                 this.displayFormattedConversation(this.getCurrentConversationContact());
                 this.chooseFromConversationViewMenu();
+                break;
+            case "DeleteContacts":
+                this.chooseFromDeleteContactsMenu();
                 break;
             default:
                 System.out.println("Invalid stage");
